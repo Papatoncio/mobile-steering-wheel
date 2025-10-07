@@ -49,6 +49,8 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       DeviceOrientation.landscapeRight,
     ]);
 
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+
     accelerometerEvents.listen((event) {
       setState(() {
         angle = ((((-event.y.clamp(-9.8, 9.8) / 9.8) * 45) * sensitivity) * -1)
@@ -64,6 +66,10 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Conectado a $ip:$port")),
     );
+  }
+
+  Future<void> _close() async {
+    sender?.close();
   }
 
   void _sendData() {
@@ -104,6 +110,7 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
           ip: ipController.text,
           sensitivity: sensitivity,
           onConnect: _connect,
+          onClose: _close,
         ),
       ),
     );

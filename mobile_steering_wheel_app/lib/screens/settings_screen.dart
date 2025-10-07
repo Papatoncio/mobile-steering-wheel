@@ -4,12 +4,14 @@ class SettingsScreen extends StatefulWidget {
   final String ip;
   final double sensitivity;
   final Future<void> Function(String) onConnect;
+  final Future<void> Function() onClose;
 
   const SettingsScreen({
     super.key,
     required this.ip,
     required this.sensitivity,
     required this.onConnect,
+    required this.onClose,
   });
 
   @override
@@ -55,11 +57,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 15),
-            ElevatedButton(
-              onPressed: () async {
-                await widget.onConnect(ipController.text);
-              },
-              child: const Text("Conectar"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    await widget.onConnect(ipController.text);
+                  },
+                  child: const Text("Conectar"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await widget.onClose();
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: const Text("Desconectar"),
+                ),
+              ],
             ),
             const SizedBox(height: 30),
             const Text(

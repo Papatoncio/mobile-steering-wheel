@@ -88,7 +88,7 @@ class MainScreen extends StatelessWidget {
                         min: 0,
                         max: 1,
                         activeColor:
-                        throttle < 0.5 ? Colors.green : Colors.redAccent,
+                            throttle < 0.5 ? Colors.green : Colors.redAccent,
                         inactiveColor: Colors.grey.shade700,
                       ),
                     ),
