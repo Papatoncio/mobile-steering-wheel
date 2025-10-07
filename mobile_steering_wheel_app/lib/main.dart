@@ -38,6 +38,13 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
   bool gearUp = false;
   bool gearDown = false;
   bool cruiseControl = false;
+  bool turnOnOfEngine = false;
+  bool interact = false;
+  bool pickDropTrailer = false;
+  bool leftSignal = false;
+  bool blinker = false;
+  bool rightSignal = false;
+  bool windshieldWiper = false;
   UDP? sender;
   final TextEditingController ipController = TextEditingController();
   final int port = 5005;
@@ -83,6 +90,13 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       "gearUp": gearUp,
       "gearDown": gearDown,
       "cruiseControl": cruiseControl,
+      "turnOnOfEngine": turnOnOfEngine,
+      "interact": interact,
+      "pickDropTrailer": pickDropTrailer,
+      "leftSignal": leftSignal,
+      "blinker": blinker,
+      "rightSignal": rightSignal,
+      "windshieldWiper": windshieldWiper,
     });
 
     sender!.send(
@@ -97,6 +111,13 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       gearUp = false;
       gearDown = false;
       cruiseControl = false;
+      turnOnOfEngine = false;
+      interact = false;
+      pickDropTrailer = false;
+      leftSignal = false;
+      blinker = false;
+      rightSignal = false;
+      windshieldWiper = false;
     });
   }
 
@@ -111,12 +132,13 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
     print("Abriendo configuración");
     final newSensitivity = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => SettingsScreen(
-          ip: ipController.text,
-          sensitivity: sensitivity,
-          onConnect: _connect,
-          onClose: _close,
-        ),
+        builder: (context) =>
+            SettingsScreen(
+              ip: ipController.text,
+              sensitivity: sensitivity,
+              onConnect: _connect,
+              onClose: _close,
+            ),
       ),
     );
 
@@ -151,6 +173,34 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
         },
         onCruiseControl: () {
           setState(() => cruiseControl = true);
+          _sendData();
+        },
+        onTurnOnOfEngine: () {
+          setState(() => turnOnOfEngine = true);
+          _sendData();
+        },
+        onInteract: () {
+          setState(() => interact = true);
+          _sendData();
+        },
+        onPickDropTrailer: () {
+          setState(() => pickDropTrailer = true);
+          _sendData();
+        },
+        onLeftSignal: () {
+          setState(() => leftSignal = true);
+          _sendData();
+        },
+        onBlinker: () {
+          setState(() => blinker = true);
+          _sendData();
+        },
+        onRightSignal: () {
+          setState(() => rightSignal = true);
+          _sendData();
+        },
+        onWindshieldWiper: () {
+          setState(() => windshieldWiper = true);
           _sendData();
         },
         onOpenSettings: _openSettings,

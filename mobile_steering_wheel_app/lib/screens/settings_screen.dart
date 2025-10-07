@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String ip;
@@ -93,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 50),
             Center(
               child: ElevatedButton.icon(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(FontAwesomeIcons.arrowLeft),
                 label: const Text("Volver"),
                 onPressed: () => Navigator.pop(context, sensitivity),
               ),
