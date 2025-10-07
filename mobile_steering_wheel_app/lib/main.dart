@@ -32,10 +32,12 @@ class MainWheelScreen extends StatefulWidget {
 
 class _MainWheelScreenState extends State<MainWheelScreen> {
   int angle = 0;
-  double throttle = 0.0;
-  double sensitivity = 1.0;
+  bool throttle = false;
+  bool brake = false;
+  double sensitivity = 0.7;
   bool gearUp = false;
   bool gearDown = false;
+  bool cruiseControl = false;
   UDP? sender;
   final TextEditingController ipController = TextEditingController();
   final int port = 5005;
@@ -77,8 +79,10 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
     final data = jsonEncode({
       "angle": angle,
       "throttle": throttle,
+      "brake": brake,
       "gearUp": gearUp,
       "gearDown": gearDown,
+      "cruiseControl": cruiseControl,
     });
 
     sender!.send(
@@ -92,6 +96,7 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
     setState(() {
       gearUp = false;
       gearDown = false;
+      cruiseControl = false;
     });
   }
 
@@ -128,9 +133,12 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       debugShowCheckedModeBanner: false,
       home: MainScreen(
         angle: angle,
-        throttle: throttle,
-        onThrottleChange: (value) {
-          setState(() => throttle = value);
+        onThrottle: () {
+          setState(() => throttle = !throttle);
+          _sendData();
+        },
+        onBrake: () {
+          setState(() => brake = !brake);
           _sendData();
         },
         onGearUp: () {
@@ -139,6 +147,10 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
         },
         onGearDown: () {
           setState(() => gearDown = true);
+          _sendData();
+        },
+        onCruiseControl: () {
+          setState(() => cruiseControl = true);
           _sendData();
         },
         onOpenSettings: _openSettings,

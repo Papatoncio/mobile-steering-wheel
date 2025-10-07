@@ -48,6 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 10),
             TextField(
+              keyboardType: TextInputType.phone,
               controller: ipController,
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(

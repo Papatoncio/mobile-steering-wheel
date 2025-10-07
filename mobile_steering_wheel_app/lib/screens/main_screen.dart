@@ -2,19 +2,21 @@ import 'package:flutter/material.dart';
 
 class MainScreen extends StatelessWidget {
   final int angle;
-  final double throttle;
-  final void Function(double) onThrottleChange;
+  final VoidCallback onThrottle;
+  final VoidCallback onBrake;
   final VoidCallback onGearUp;
   final VoidCallback onGearDown;
+  final VoidCallback onCruiseControl;
   final VoidCallback onOpenSettings;
 
   const MainScreen({
     super.key,
     required this.angle,
-    required this.throttle,
-    required this.onThrottleChange,
+    required this.onThrottle,
+    required this.onBrake,
     required this.onGearUp,
     required this.onGearDown,
+    required this.onCruiseControl,
     required this.onOpenSettings,
   });
 
@@ -33,30 +35,38 @@ class MainScreen extends StatelessWidget {
                   flex: 1,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 40),
+                        horizontal: 20, vertical: 20),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ElevatedButton(
+                        OutlinedButton(
+                          onPressed: onCruiseControl,
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(20),
+                          ),
+                          child: const Icon(Icons.lock,
+                              color: Colors.white, size: 20),
+                        ),
+                        const SizedBox(height: 20),
+                        OutlinedButton(
                           onPressed: onGearUp,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
                             shape: const CircleBorder(),
-                            padding: const EdgeInsets.all(25),
+                            padding: const EdgeInsets.all(20),
                           ),
                           child: const Icon(Icons.arrow_upward,
-                              color: Colors.white, size: 28),
+                              color: Colors.white, size: 20),
                         ),
-                        const SizedBox(height: 40),
-                        ElevatedButton(
+                        const SizedBox(height: 20),
+                        OutlinedButton(
                           onPressed: onGearDown,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
                             shape: const CircleBorder(),
-                            padding: const EdgeInsets.all(25),
+                            padding: const EdgeInsets.all(20),
                           ),
                           child: const Icon(Icons.arrow_downward,
-                              color: Colors.white, size: 28),
+                              color: Colors.white, size: 20),
                         ),
                       ],
                     ),
@@ -69,7 +79,7 @@ class MainScreen extends StatelessWidget {
                   child: Center(
                     child: Text(
                       "Ángulo: ${angle.toStringAsFixed(1)}°",
-                      style: const TextStyle(color: Colors.white, fontSize: 28),
+                      style: const TextStyle(color: Colors.white, fontSize: 24),
                     ),
                   ),
                 ),
@@ -79,18 +89,40 @@ class MainScreen extends StatelessWidget {
                   flex: 1,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 40),
-                    child: RotatedBox(
-                      quarterTurns: -1,
-                      child: Slider(
-                        value: 1 - throttle,
-                        onChanged: (v) => onThrottleChange(1 - v),
-                        min: 0,
-                        max: 1,
-                        activeColor:
-                            throttle < 0.5 ? Colors.green : Colors.redAccent,
-                        inactiveColor: Colors.grey.shade700,
-                      ),
+                        horizontal: 20, vertical: 20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTapDown: (_) => {onThrottle()},
+                          onTapUp: (_) => {onThrottle()},
+                          onTapCancel: () => {onThrottle()},
+                          child: OutlinedButton(
+                            onPressed: () => {},
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(20),
+                            ),
+                            child: const Icon(Icons.arrow_upward,
+                                color: Colors.white, size: 20),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        GestureDetector(
+                          onTapDown: (_) => {onBrake()},
+                          onTapUp: (_) => {onBrake()},
+                          onTapCancel: () => {onBrake()},
+                          child: OutlinedButton(
+                            onPressed: () => {},
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(20),
+                            ),
+                            child: const Icon(Icons.arrow_downward,
+                                color: Colors.white, size: 20),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
