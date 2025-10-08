@@ -32,6 +32,15 @@ while True:
         blinker = msg.get("blinker", False)
         rightSignal = msg.get("rightSignal", False)
         windshieldWiper = msg.get("windshieldWiper", False)
+        handBrake = msg.get("handBrake", False)
+        headlights = msg.get("headlights", False)
+        highBeams = msg.get("highBeams", False)
+        horn = msg.get("horn", False)
+
+        # Cameras
+        cameraOne = msg.get("cameraOne", False)
+        cameraTwo = msg.get("cameraTwo", False)
+        cameraThree = msg.get("cameraThree", False)
 
         # Convertir ángulo (-45° a 45°) → rango vJoy (1–32767)
         x_val = int(16384 + (angle / 45.0) * 16384)
@@ -51,8 +60,17 @@ while True:
         j.set_button(10, 1 if blinker else 0)
         j.set_button(11, 1 if rightSignal else 0)
         j.set_button(12, 1 if windshieldWiper else 0)
+        j.set_button(13, 1 if handBrake else 0)
+        j.set_button(14, 1 if headlights else 0)
+        j.set_button(15, 1 if highBeams else 0)
+        j.set_button(16, 1 if horn else 0)
 
-        print(f"[{addr[0]}] Ángulo: {angle:.1f}° | Acelerador: {throttle} | Freno: {brake}")
+        # Cameras
+        j.set_button(17, 1 if cameraOne else 0)
+        j.set_button(18, 1 if cameraTwo else 0)
+        j.set_button(19, 1 if cameraThree else 0)
+
+        print(f"[{addr[0]}] Ángulo: {angle:.1f}° | Acelerador: {throttle} | Freno: {brake}")        
 
     except json.JSONDecodeError:
         continue

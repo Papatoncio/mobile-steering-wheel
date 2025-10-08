@@ -45,6 +45,13 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
   bool blinker = false;
   bool rightSignal = false;
   bool windshieldWiper = false;
+  bool handBrake = false;
+  bool headlights = false;
+  bool highBeams = false;
+  bool horn = false;
+  bool cameraOne = false;
+  bool cameraTwo = false;
+  bool cameraThree = false;
   UDP? sender;
   final TextEditingController ipController = TextEditingController();
   final int port = 5005;
@@ -97,6 +104,13 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       "blinker": blinker,
       "rightSignal": rightSignal,
       "windshieldWiper": windshieldWiper,
+      "handBrake": handBrake,
+      "headlights": headlights,
+      "highBeams": highBeams,
+      "horn": horn,
+      "cameraOne": cameraOne,
+      "cameraTwo": cameraTwo,
+      "cameraThree": cameraThree,
     });
 
     sender!.send(
@@ -118,6 +132,13 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       blinker = false;
       rightSignal = false;
       windshieldWiper = false;
+      handBrake = false;
+      headlights = false;
+      highBeams = false;
+      horn = false;
+      cameraOne = false;
+      cameraTwo = false;
+      cameraThree = false;
     });
   }
 
@@ -132,13 +153,12 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
     print("Abriendo configuración");
     final newSensitivity = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) =>
-            SettingsScreen(
-              ip: ipController.text,
-              sensitivity: sensitivity,
-              onConnect: _connect,
-              onClose: _close,
-            ),
+        builder: (context) => SettingsScreen(
+          ip: ipController.text,
+          sensitivity: sensitivity,
+          onConnect: _connect,
+          onClose: _close,
+        ),
       ),
     );
 
@@ -201,6 +221,36 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
         },
         onWindshieldWiper: () {
           setState(() => windshieldWiper = true);
+          _sendData();
+        },
+        onHandBrake: () {
+          setState(() => handBrake = true);
+          _sendData();
+        },
+        onHeadlights: () {
+          setState(() => headlights = true);
+          _sendData();
+        },
+        onHighBeams: () {
+          setState(() => highBeams = true);
+          _sendData();
+        },
+        onHorn: () {
+          setState(() => horn = true);
+          _sendData();
+        },
+        onCameraChange: (Camera camera) {
+          switch (camera) {
+            case Camera.one:
+              setState(() => cameraOne = true);
+              break;
+            case Camera.two:
+              setState(() => cameraTwo = true);
+              break;
+            case Camera.three:
+              setState(() => cameraThree = true);
+              break;
+          }
           _sendData();
         },
         onOpenSettings: _openSettings,
