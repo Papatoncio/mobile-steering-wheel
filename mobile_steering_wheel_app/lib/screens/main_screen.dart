@@ -3,8 +3,17 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 enum Camera { one, two, three }
 
+enum RouteAdvisor { navigation, currentDelivery, assistance, information, chat }
+
 class MainScreen extends StatelessWidget {
+  // Variables
   final int angle;
+  final bool throttle;
+  final bool brake;
+  final bool interact;
+  final bool horn;
+
+  // Methods
   final VoidCallback onThrottle;
   final VoidCallback onBrake;
   final VoidCallback onGearUp;
@@ -22,23 +31,38 @@ class MainScreen extends StatelessWidget {
   final VoidCallback onHighBeams;
   final VoidCallback onHorn;
   final void Function(Camera) onCameraChange;
+  final void Function(RouteAdvisor) onRouteAdvisorChange;
   final VoidCallback onOpenSettings;
 
   static const double btnSize = 20;
   static const double iconSize = 20;
   static const EdgeInsets sectionPadding =
-      EdgeInsets.symmetric(horizontal: 40, vertical: 8);
+      EdgeInsets.symmetric(horizontal: 80, vertical: 8);
   static const EdgeInsets columnPadding = EdgeInsets.symmetric(horizontal: 4);
   static const EdgeInsets menuPadding =
       EdgeInsets.symmetric(horizontal: 4, vertical: 4);
   static const AnimationStyle menuAnimation = AnimationStyle(
     curve: Easing.emphasizedDecelerate,
-    duration: Duration(seconds: 3),
+    duration: Duration(seconds: 1),
   );
+
+  static const Color screenBackgroundColor = Colors.white70;
+  static const Color btnIdleBackgroundColor = Colors.black;
+  static const Color btnPressedBackgroundColor = Colors.white;
+  static const Color iconIdleBackgroundColor = Colors.white;
+  static const Color iconPressedBackgroundColor = Colors.black;
+  static const Color textColor = Colors.black;
 
   const MainScreen({
     super.key,
+    // Variables
     required this.angle,
+    required this.throttle,
+    required this.brake,
+    required this.interact,
+    required this.horn,
+
+    // Methods
     required this.onThrottle,
     required this.onBrake,
     required this.onGearUp,
@@ -56,13 +80,14 @@ class MainScreen extends StatelessWidget {
     required this.onHighBeams,
     required this.onHorn,
     required this.onCameraChange,
+    required this.onRouteAdvisorChange,
     required this.onOpenSettings,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: screenBackgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -71,7 +96,7 @@ class MainScreen extends StatelessWidget {
               children: [
                 // Botones de marcha
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Padding(
                     padding: sectionPadding,
                     child: Row(
@@ -83,50 +108,58 @@ class MainScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               // Cruise Control
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onCruiseControl,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.gaugeHigh,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // Gear Up
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onGearUp,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.arrowUp,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // Gear Down
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onGearDown,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.arrowDown,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // Headlights
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onHeadlights,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.lightbulb,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                             ],
                           ),
@@ -137,50 +170,78 @@ class MainScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               // Interact
-                              OutlinedButton(
-                                onPressed: onInteract,
-                                style: ElevatedButton.styleFrom(
-                                  shape: const CircleBorder(),
-                                  padding: const EdgeInsets.all(btnSize),
+                              GestureDetector(
+                                onDoubleTap: () => onInteract(),
+                                onTapDown: (_) => onInteract(),
+                                onTapUp: (_) => onInteract(),
+                                onTapCancel: () => onInteract(),
+                                child: ElevatedButton(
+                                  onPressed: () => {},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: interact
+                                        ? btnPressedBackgroundColor
+                                        : btnIdleBackgroundColor,
+                                    shape: const CircleBorder(),
+                                    padding: const EdgeInsets.all(btnSize),
+                                  ),
+                                  child: Icon(FontAwesomeIcons.handPointer,
+                                      color: interact
+                                          ? iconPressedBackgroundColor
+                                          : iconIdleBackgroundColor,
+                                      size: iconSize),
                                 ),
-                                child: const Icon(FontAwesomeIcons.handPointer,
-                                    color: Colors.white, size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // Horn
-                              OutlinedButton(
-                                onPressed: onHorn,
-                                style: ElevatedButton.styleFrom(
-                                  shape: const CircleBorder(),
-                                  padding: const EdgeInsets.all(btnSize),
+                              GestureDetector(
+                                onDoubleTap: () => onHorn(),
+                                onTapDown: (_) => onHorn(),
+                                onTapUp: (_) => onHorn(),
+                                onTapCancel: () => onHorn(),
+                                child: ElevatedButton(
+                                  onPressed: () => {},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: horn
+                                        ? btnPressedBackgroundColor
+                                        : btnIdleBackgroundColor,
+                                    shape: const CircleBorder(),
+                                    padding: const EdgeInsets.all(btnSize),
+                                  ),
+                                  child: Icon(FontAwesomeIcons.bullhorn,
+                                      color: horn
+                                          ? iconPressedBackgroundColor
+                                          : iconIdleBackgroundColor,
+                                      size: iconSize),
                                 ),
-                                child: const Icon(FontAwesomeIcons.bullhorn,
-                                    color: Colors.white, size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // Windshield Wiper
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onWindshieldWiper,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.cloudRain,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // High Beams
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onHighBeams,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.sun,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                             ],
                           ),
@@ -192,18 +253,24 @@ class MainScreen extends StatelessWidget {
 
                 // Ángulo de inclinación
                 Expanded(
-                  flex: 2,
-                  child: Center(
-                    child: Text(
-                      "Ángulo: ${angle.toStringAsFixed(1)}°",
-                      style: const TextStyle(color: Colors.white, fontSize: 24),
-                    ),
-                  ),
+                  flex: 1,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Ángulo:",
+                          style: TextStyle(color: textColor, fontSize: 24),
+                        ),
+                        Text(
+                          "${angle.toStringAsFixed(1)}°",
+                          style:
+                              const TextStyle(color: textColor, fontSize: 24),
+                        ),
+                      ]),
                 ),
 
-                // Acelerador y freno
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Padding(
                     padding: sectionPadding,
                     child: Row(
@@ -215,52 +282,59 @@ class MainScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               // Turn On / Off Engine
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onTurnOnOfEngine,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.powerOff,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // Pick / Drop Trailer
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onPickDropTrailer,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.trailer,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // Blinker
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onBlinker,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(
                                     FontAwesomeIcons.triangleExclamation,
-                                    color: Colors.white,
+                                    color: iconIdleBackgroundColor,
                                     size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // Left Signal
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onLeftSignal,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.arrowLeft,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                             ],
                           ),
@@ -272,59 +346,77 @@ class MainScreen extends StatelessWidget {
                             children: [
                               // Throttle
                               GestureDetector(
+                                onDoubleTap: () => onThrottle(),
                                 onTapDown: (_) => onThrottle(),
                                 onTapUp: (_) => onThrottle(),
                                 onTapCancel: () => onThrottle(),
-                                child: OutlinedButton(
-                                  onPressed: () {},
+                                child: ElevatedButton(
+                                  onPressed: () => {},
                                   style: ElevatedButton.styleFrom(
+                                    backgroundColor: throttle
+                                        ? btnPressedBackgroundColor
+                                        : btnIdleBackgroundColor,
                                     shape: const CircleBorder(),
                                     padding: const EdgeInsets.all(btnSize),
                                   ),
-                                  child: const Icon(FontAwesomeIcons.truckFast,
-                                      color: Colors.white, size: iconSize),
+                                  child: Icon(FontAwesomeIcons.truckFast,
+                                      color: throttle
+                                          ? iconPressedBackgroundColor
+                                          : iconIdleBackgroundColor,
+                                      size: iconSize),
                                 ),
                               ),
                               const SizedBox(height: 20),
 
                               // Brake
                               GestureDetector(
+                                onDoubleTap: () => onBrake(),
                                 onTapDown: (_) => onBrake(),
                                 onTapUp: (_) => onBrake(),
                                 onTapCancel: () => onBrake(),
-                                child: OutlinedButton(
-                                  onPressed: () {},
+                                child: ElevatedButton(
+                                  onPressed: () => {},
                                   style: ElevatedButton.styleFrom(
+                                    backgroundColor: brake
+                                        ? btnPressedBackgroundColor
+                                        : btnIdleBackgroundColor,
                                     shape: const CircleBorder(),
                                     padding: const EdgeInsets.all(btnSize),
                                   ),
-                                  child: const Icon(FontAwesomeIcons.solidTruck,
-                                      color: Colors.white, size: iconSize),
+                                  child: Icon(FontAwesomeIcons.solidTruck,
+                                      color: brake
+                                          ? iconPressedBackgroundColor
+                                          : iconIdleBackgroundColor,
+                                      size: iconSize),
                                 ),
                               ),
                               const SizedBox(height: 20),
 
                               // Hand Brake
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onHandBrake,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.ban,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                               const SizedBox(height: 20),
 
                               // Right Signal
-                              OutlinedButton(
+                              ElevatedButton(
                                 onPressed: onRightSignal,
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnIdleBackgroundColor,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(btnSize),
                                 ),
                                 child: const Icon(FontAwesomeIcons.arrowRight,
-                                    color: Colors.white, size: iconSize),
+                                    color: iconIdleBackgroundColor,
+                                    size: iconSize),
                               ),
                             ],
                           ),
@@ -346,8 +438,13 @@ class MainScreen extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 50),
                 offset: const Offset(0, 40),
                 popUpAnimationStyle: menuAnimation,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: btnIdleBackgroundColor,
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(btnSize),
+                ),
                 icon: const Icon(FontAwesomeIcons.camera,
-                    color: Colors.white, size: iconSize),
+                    color: iconIdleBackgroundColor, size: iconSize),
                 onSelected: (Camera item) => {onCameraChange(item)},
                 itemBuilder: (BuildContext context) => <PopupMenuEntry<Camera>>[
                   // Camera 1
@@ -374,18 +471,77 @@ class MainScreen extends StatelessWidget {
               ),
             ),
 
+            // Route Advisor
+            Positioned(
+              top: 80,
+              left: 10,
+              child: PopupMenuButton<RouteAdvisor>(
+                color: Colors.white,
+                menuPadding: menuPadding,
+                constraints: const BoxConstraints(maxWidth: 60),
+                offset: const Offset(0, 40),
+                popUpAnimationStyle: menuAnimation,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: btnIdleBackgroundColor,
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(btnSize),
+                ),
+                icon: const Icon(FontAwesomeIcons.route,
+                    color: iconIdleBackgroundColor, size: iconSize),
+                onSelected: (RouteAdvisor item) => {onRouteAdvisorChange(item)},
+                itemBuilder: (BuildContext context) =>
+                    <PopupMenuEntry<RouteAdvisor>>[
+                  // Navigation
+                  const PopupMenuItem<RouteAdvisor>(
+                    value: RouteAdvisor.navigation,
+                    child: Icon(FontAwesomeIcons.mapLocationDot,
+                        color: Colors.black, size: iconSize),
+                  ),
+
+                  // Current Delivery
+                  const PopupMenuItem<RouteAdvisor>(
+                    value: RouteAdvisor.currentDelivery,
+                    child: Icon(FontAwesomeIcons.truckRampBox,
+                        color: Colors.black, size: iconSize),
+                  ),
+
+                  // Assistance
+                  const PopupMenuItem<RouteAdvisor>(
+                    value: RouteAdvisor.assistance,
+                    child: Icon(FontAwesomeIcons.truckMedical,
+                        color: Colors.black, size: iconSize),
+                  ),
+
+                  // Information
+                  const PopupMenuItem<RouteAdvisor>(
+                    value: RouteAdvisor.information,
+                    child: Icon(FontAwesomeIcons.circleInfo,
+                        color: Colors.black, size: iconSize),
+                  ),
+
+                  // Chat
+                  const PopupMenuItem<RouteAdvisor>(
+                    value: RouteAdvisor.chat,
+                    child: Icon(FontAwesomeIcons.comments,
+                        color: Colors.black, size: iconSize),
+                  ),
+                ],
+              ),
+            ),
+
             // Settings
             Positioned(
               top: 10,
               right: 10,
-              child: IconButton(
-                style: IconButton.styleFrom(
+              child: ElevatedButton(
+                onPressed: onOpenSettings,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: btnIdleBackgroundColor,
                   shape: const CircleBorder(),
                   padding: const EdgeInsets.all(btnSize),
                 ),
-                icon: const Icon(FontAwesomeIcons.gear,
-                    color: Colors.white, size: iconSize),
-                onPressed: onOpenSettings,
+                child: const Icon(FontAwesomeIcons.gear,
+                    color: iconIdleBackgroundColor, size: iconSize),
               ),
             ),
           ],

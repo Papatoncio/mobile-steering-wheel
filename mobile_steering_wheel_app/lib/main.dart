@@ -31,10 +31,10 @@ class MainWheelScreen extends StatefulWidget {
 }
 
 class _MainWheelScreenState extends State<MainWheelScreen> {
+  double sensitivity = 0.7;
   int angle = 0;
   bool throttle = false;
   bool brake = false;
-  double sensitivity = 0.7;
   bool gearUp = false;
   bool gearDown = false;
   bool cruiseControl = false;
@@ -52,6 +52,11 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
   bool cameraOne = false;
   bool cameraTwo = false;
   bool cameraThree = false;
+  bool routeAdvisorNavigation = false;
+  bool routeAdvisorCurrentDelivery = false;
+  bool routeAdvisorAssistance = false;
+  bool routeAdvisorInformation = false;
+  bool routeAdvisorChat = false;
   UDP? sender;
   final TextEditingController ipController = TextEditingController();
   final int port = 5005;
@@ -86,6 +91,9 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
 
   Future<void> _close() async {
     sender?.close();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Desconectado del socket")),
+    );
   }
 
   void _sendData() {
@@ -111,6 +119,11 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       "cameraOne": cameraOne,
       "cameraTwo": cameraTwo,
       "cameraThree": cameraThree,
+      "routeAdvisorNavigation": routeAdvisorNavigation,
+      "routeAdvisorCurrentDelivery": routeAdvisorCurrentDelivery,
+      "routeAdvisorAssistance": routeAdvisorAssistance,
+      "routeAdvisorInformation": routeAdvisorInformation,
+      "routeAdvisorChat": routeAdvisorChat,
     });
 
     sender!.send(
@@ -126,7 +139,6 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       gearDown = false;
       cruiseControl = false;
       turnOnOfEngine = false;
-      interact = false;
       pickDropTrailer = false;
       leftSignal = false;
       blinker = false;
@@ -135,10 +147,14 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       handBrake = false;
       headlights = false;
       highBeams = false;
-      horn = false;
       cameraOne = false;
       cameraTwo = false;
       cameraThree = false;
+      routeAdvisorNavigation = false;
+      routeAdvisorCurrentDelivery = false;
+      routeAdvisorAssistance = false;
+      routeAdvisorInformation = false;
+      routeAdvisorChat = false;
     });
   }
 
@@ -175,6 +191,10 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
       debugShowCheckedModeBanner: false,
       home: MainScreen(
         angle: angle,
+        throttle: throttle,
+        brake: brake,
+        interact: interact,
+        horn: horn,
         onThrottle: () {
           setState(() => throttle = !throttle);
           _sendData();
@@ -200,7 +220,7 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
           _sendData();
         },
         onInteract: () {
-          setState(() => interact = true);
+          setState(() => interact = !interact);
           _sendData();
         },
         onPickDropTrailer: () {
@@ -236,7 +256,7 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
           _sendData();
         },
         onHorn: () {
-          setState(() => horn = true);
+          setState(() => horn = !horn);
           _sendData();
         },
         onCameraChange: (Camera camera) {
@@ -249,6 +269,26 @@ class _MainWheelScreenState extends State<MainWheelScreen> {
               break;
             case Camera.three:
               setState(() => cameraThree = true);
+              break;
+          }
+          _sendData();
+        },
+        onRouteAdvisorChange: (RouteAdvisor routeAdvisor) {
+          switch (routeAdvisor) {
+            case RouteAdvisor.navigation:
+              setState(() => routeAdvisorNavigation = true);
+              break;
+            case RouteAdvisor.currentDelivery:
+              setState(() => routeAdvisorCurrentDelivery = true);
+              break;
+            case RouteAdvisor.assistance:
+              setState(() => routeAdvisorAssistance = true);
+              break;
+            case RouteAdvisor.information:
+              setState(() => routeAdvisorInformation = true);
+              break;
+            case RouteAdvisor.chat:
+              setState(() => routeAdvisorChat = true);
               break;
           }
           _sendData();
