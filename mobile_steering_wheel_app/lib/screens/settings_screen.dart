@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mobile_steering_wheel_app/screens/main_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String ip;
@@ -34,10 +35,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Configuración"),
-        backgroundColor: Colors.blueGrey.shade900,
+        iconTheme:
+            const IconThemeData(color: MainScreen.iconIdleBackgroundColor),
+        title: const Text(
+          "Configuración",
+          style: TextStyle(color: MainScreen.textColor),
+        ),
+        backgroundColor: MainScreen.appBarBackgroundColor,
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: MainScreen.screenBackgroundColor,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -45,16 +51,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             const Text(
               "Conexión",
-              style: TextStyle(fontSize: 22, color: Colors.white),
+              style: TextStyle(fontSize: 22, color: MainScreen.textColor),
             ),
             const SizedBox(height: 10),
             TextField(
               keyboardType: TextInputType.phone,
               controller: ipController,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: MainScreen.textColor),
               decoration: const InputDecoration(
                 labelText: "IP del PC",
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: MainScreen.textColor),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -62,25 +68,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                ElevatedButton(
+                OutlinedButton(
                   onPressed: () async {
                     await widget.onConnect(ipController.text);
                   },
-                  child: const Text("Conectar"),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: MainScreen.btnIdleBackgroundColor,
+                    padding: const EdgeInsets.all(MainScreen.btnSize),
+                  ),
+                  child: const Text(
+                    "Conectar",
+                    style: TextStyle(color: MainScreen.textColor),
+                  ),
                 ),
-                ElevatedButton(
+                OutlinedButton(
                   onPressed: () async {
                     await widget.onClose();
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: const Text("Desconectar"),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: MainScreen.btnIdleBackgroundColor,
+                    padding: const EdgeInsets.all(MainScreen.btnSize),
+                  ),
+                  child: const Text(
+                    "Desconectar",
+                    style: TextStyle(color: MainScreen.textColor),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 30),
             const Text(
               "Sensibilidad del giro",
-              style: TextStyle(fontSize: 22, color: Colors.white),
+              style: TextStyle(fontSize: 22, color: MainScreen.textColor),
             ),
             Slider(
               value: sensitivity,
@@ -89,13 +108,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
               divisions: 15,
               label: "${sensitivity.toStringAsFixed(2)}x",
               onChanged: (val) => setState(() => sensitivity = val),
-              activeColor: Colors.blueAccent,
+              activeColor: MainScreen.sliderActiveColor,
             ),
             const SizedBox(height: 50),
             Center(
-              child: ElevatedButton.icon(
-                icon: const Icon(FontAwesomeIcons.arrowLeft),
-                label: const Text("Volver"),
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.all(MainScreen.btnSize),
+                ),
+                icon: const Icon(FontAwesomeIcons.arrowLeft,
+                    color: MainScreen.iconIdleBackgroundColor,
+                    size: MainScreen.iconSize),
+                label: const Text(
+                  "Volver",
+                  style: TextStyle(fontSize: 22, color: MainScreen.textColor),
+                ),
                 onPressed: () => Navigator.pop(context, sensitivity),
               ),
             ),

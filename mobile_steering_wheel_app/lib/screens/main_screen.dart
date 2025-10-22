@@ -46,12 +46,15 @@ class MainScreen extends StatelessWidget {
     duration: Duration(seconds: 1),
   );
 
-  static const Color screenBackgroundColor = Colors.white70;
-  static const Color btnIdleBackgroundColor = Colors.black;
+  static const Color screenBackgroundColor = Colors.black;
+  static const Color appBarBackgroundColor = Colors.black12;
+  static const Color btnIdleBackgroundColor = Colors.transparent;
   static const Color btnPressedBackgroundColor = Colors.white;
+  static const Color btnBorderColor = Colors.white;
   static const Color iconIdleBackgroundColor = Colors.white;
   static const Color iconPressedBackgroundColor = Colors.black;
-  static const Color textColor = Colors.black;
+  static const Color sliderActiveColor = Colors.blueAccent;
+  static const Color textColor = Colors.white;
 
   const MainScreen({
     super.key,
@@ -111,10 +114,10 @@ class MainScreen extends StatelessWidget {
                               ElevatedButton(
                                 onPressed: onCruiseControl,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: btnIdleBackgroundColor,
-                                  shape: const CircleBorder(),
-                                  padding: const EdgeInsets.all(btnSize),
-                                ),
+                                    backgroundColor: btnIdleBackgroundColor,
+                                    shape: const CircleBorder(),
+                                    padding: const EdgeInsets.all(btnSize),
+                                    elevation: 5),
                                 child: const Icon(FontAwesomeIcons.gaugeHigh,
                                     color: iconIdleBackgroundColor,
                                     size: iconSize),
