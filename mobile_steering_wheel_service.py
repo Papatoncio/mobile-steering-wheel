@@ -2,14 +2,11 @@ import socket
 import json
 import pyvjoy
 
-# Configuración
-UDP_IP = "0.0.0.0"   # Escuchar en todas las interfaces
-UDP_PORT = 5005      # Puerto de comunicación
+UDP_IP = "0.0.0.0"
+UDP_PORT = 5005
 
-# Inicializar vJoy
 j = pyvjoy.VJoyDevice(1)
 
-# Crear socket UDP
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((UDP_IP, UDP_PORT))
 
@@ -42,7 +39,14 @@ while True:
         cameraTwo = msg.get("cameraTwo", False)
         cameraThree = msg.get("cameraThree", False)
 
-        # Convertir ángulo (-45° a 45°) → rango vJoy (1–32767)
+        # Route Advisor
+        routeAdvisorNavigation = msg.get("routeAdvisorNavigation", False)
+        routeAdvisorCurrentDelivery = msg.get("routeAdvisorCurrentDelivery", False)
+        routeAdvisorAssistance = msg.get("routeAdvisorAssistance", False)
+        routeAdvisorInformation = msg.get("routeAdvisorInformation", False)
+        routeAdvisorChat = msg.get("routeAdvisorChat", False)
+
+        # Convertir ángulo a rango
         x_val = int(16384 + (angle / 45.0) * 16384)
         x_val = max(1, min(x_val, 32767))
 
@@ -70,7 +74,14 @@ while True:
         j.set_button(18, 1 if cameraTwo else 0)
         j.set_button(19, 1 if cameraThree else 0)
 
-        print(f"[{addr[0]}] Ángulo: {angle:.1f}° | Acelerador: {throttle} | Freno: {brake}")        
+        # Route Advisor
+        j.set_button(20, 1 if routeAdvisorNavigation else 0)
+        j.set_button(21, 1 if routeAdvisorCurrentDelivery else 0)
+        j.set_button(22, 1 if routeAdvisorAssistance else 0)
+        j.set_button(23, 1 if routeAdvisorInformation else 0)
+        j.set_button(24, 1 if routeAdvisorChat else 0)
+
+        print(f"[{addr[0]}] Ángulo: {angle:.1f}° | Acelerador: {throttle} | Freno: {brake}")
 
     except json.JSONDecodeError:
         continue
