@@ -1,129 +1,226 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:mobile_steering_wheel_app/screens/main_screen.dart';
+
+import '../controllers/wheel_controller.dart';
+import '../screens/qr_scan_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final String ip;
-  final double sensitivity;
-  final Future<void> Function(String) onConnect;
-  final Future<void> Function() onClose;
+  final WheelController controller;
 
-  const SettingsScreen({
-    super.key,
-    required this.ip,
-    required this.sensitivity,
-    required this.onConnect,
-    required this.onClose,
-  });
+  const SettingsScreen({super.key, required this.controller});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late TextEditingController ipController;
-  late double sensitivity;
+  late TextEditingController _ipCtrl;
+  late TextEditingController _portCtrl;
+  late double _sensitivity;
+  bool _isConnecting = false;
+
+  static const _textStyle   = TextStyle(color: Colors.white);
+  static const _labelStyle  = TextStyle(color: Colors.white70);
+  static const _inputBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: Colors.white38),
+  );
 
   @override
   void initState() {
     super.initState();
-    ipController = TextEditingController(text: widget.ip);
-    sensitivity = widget.sensitivity;
+    final ctrl = widget.controller;
+    _ipCtrl      = TextEditingController(text: ctrl.currentIp);
+    _portCtrl    = TextEditingController(text: ctrl.port.toString());
+    _sensitivity = ctrl.sensitivity;
   }
+
+  @override
+  void dispose() {
+    _ipCtrl.dispose();
+    _portCtrl.dispose();
+    super.dispose();
+  }
+
+  // ── Escanear QR ────────────────────────────────────────────────────────────
+
+  Future<void> _scanQr() async {
+    final result = await Navigator.of(context).push<Map<String, dynamic>>(
+      MaterialPageRoute(builder: (_) => const QrScanScreen()),
+    );
+    if (result == null || !mounted) return;
+
+    setState(() {
+      _ipCtrl.text   = result['ip'] as String;
+      _portCtrl.text = (result['port'] as int).toString();
+    });
+
+    // Conectar automáticamente tras escanear
+    await _connect();
+  }
+
+  // ── Conectar / Desconectar ─────────────────────────────────────────────────
+
+  Future<void> _connect() async {
+    final ip   = _ipCtrl.text.trim();
+    final port = int.tryParse(_portCtrl.text.trim()) ?? 5005;
+
+    if (ip.isEmpty) {
+      _showSnack('Escribe o escanea una IP primero');
+      return;
+    }
+
+    setState(() => _isConnecting = true);
+    final error = await widget.controller.connect(ip, port);
+    if (!mounted) return;
+    setState(() => _isConnecting = false);
+
+    _showSnack(error == null ? '✓ Conectado a $ip:$port' : '✗ $error');
+  }
+
+  Future<void> _disconnect() async {
+    await widget.controller.disconnect();
+    _showSnack('Desconectado');
+  }
+
+  void _showSnack(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
+    );
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme:
-            const IconThemeData(color: MainScreen.iconIdleBackgroundColor),
-        title: const Text(
-          "Configuración",
-          style: TextStyle(color: MainScreen.textColor),
-        ),
-        backgroundColor: MainScreen.appBarBackgroundColor,
+        title: const Text('Configuración', style: _textStyle),
+        backgroundColor: Colors.black12,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      backgroundColor: MainScreen.screenBackgroundColor,
+      backgroundColor: Colors.black,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Conexión",
-              style: TextStyle(fontSize: 22, color: MainScreen.textColor),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              keyboardType: TextInputType.phone,
-              controller: ipController,
-              style: const TextStyle(color: MainScreen.textColor),
-              decoration: const InputDecoration(
-                labelText: "IP del PC",
-                labelStyle: TextStyle(color: MainScreen.textColor),
-                border: OutlineInputBorder(),
+
+            // ── Sección conexión ──────────────────────────────────────────
+            const Text('Conexión', style: TextStyle(fontSize: 22, color: Colors.white)),
+            const SizedBox(height: 12),
+
+            // Botón QR (destacado)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                icon: const Icon(FontAwesomeIcons.qrcode, color: Colors.white),
+                label: const Text('Escanear QR del servidor',
+                    style: TextStyle(color: Colors.white, fontSize: 16)),
+                onPressed: _scanQr,
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 8),
+            const Center(
+              child: Text('— o ingresa manualmente —',
+                  style: TextStyle(color: Colors.white38, fontSize: 12)),
+            ),
+            const SizedBox(height: 8),
+
+            // IP
+            TextField(
+              controller: _ipCtrl,
+              keyboardType: TextInputType.phone,
+              style: _textStyle,
+              decoration: const InputDecoration(
+                labelText: 'IP del PC',
+                labelStyle: _labelStyle,
+                border: _inputBorder,
+                enabledBorder: _inputBorder,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Puerto
+            TextField(
+              controller: _portCtrl,
+              keyboardType: TextInputType.number,
+              style: _textStyle,
+              decoration: const InputDecoration(
+                labelText: 'Puerto UDP',
+                labelStyle: _labelStyle,
+                border: _inputBorder,
+                enabledBorder: _inputBorder,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Botones conectar / desconectar
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                OutlinedButton(
-                  onPressed: () async {
-                    await widget.onConnect(ipController.text);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: MainScreen.btnIdleBackgroundColor,
-                    padding: const EdgeInsets.all(MainScreen.btnSize),
-                  ),
-                  child: const Text(
-                    "Conectar",
-                    style: TextStyle(color: MainScreen.textColor),
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14)),
+                    onPressed: _isConnecting ? null : _connect,
+                    child: _isConnecting
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Text('Conectar', style: _textStyle),
                   ),
                 ),
-                OutlinedButton(
-                  onPressed: () async {
-                    await widget.onClose();
-                  },
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: MainScreen.btnIdleBackgroundColor,
-                    padding: const EdgeInsets.all(MainScreen.btnSize),
-                  ),
-                  child: const Text(
-                    "Desconectar",
-                    style: TextStyle(color: MainScreen.textColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14)),
+                    onPressed: _disconnect,
+                    child: const Text('Desconectar', style: _textStyle),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 30),
-            const Text(
-              "Sensibilidad del giro",
-              style: TextStyle(fontSize: 22, color: MainScreen.textColor),
-            ),
+
+            const SizedBox(height: 36),
+
+            // ── Sección sensibilidad ──────────────────────────────────────
+            const Text('Sensibilidad del giro',
+                style: TextStyle(fontSize: 22, color: Colors.white)),
+            const SizedBox(height: 4),
+            Text('${_sensitivity.toStringAsFixed(2)}x',
+                style: const TextStyle(color: Colors.blueAccent, fontSize: 18)),
+
             Slider(
-              value: sensitivity,
-              min: 0.5,
+              value: _sensitivity,
+              min: 0.3,
               max: 2.0,
-              divisions: 15,
-              label: "${sensitivity.toStringAsFixed(2)}x",
-              onChanged: (val) => setState(() => sensitivity = val),
-              activeColor: MainScreen.sliderActiveColor,
+              divisions: 17,
+              label: '${_sensitivity.toStringAsFixed(2)}x',
+              activeColor: Colors.blueAccent,
+              onChanged: (v) {
+                setState(() => _sensitivity = v);
+                widget.controller.updateSensitivity(v);
+              },
             ),
+
             const SizedBox(height: 50),
+
+            // ── Volver ────────────────────────────────────────────────────
             Center(
               child: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(MainScreen.btnSize),
-                ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 28, vertical: 14)),
                 icon: const Icon(FontAwesomeIcons.arrowLeft,
-                    color: MainScreen.iconIdleBackgroundColor,
-                    size: MainScreen.iconSize),
-                label: const Text(
-                  "Volver",
-                  style: TextStyle(fontSize: 22, color: MainScreen.textColor),
-                ),
-                onPressed: () => Navigator.pop(context, sensitivity),
+                    color: Colors.white, size: 18),
+                label: const Text('Volver',
+                    style: TextStyle(fontSize: 20, color: Colors.white)),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
           ],
